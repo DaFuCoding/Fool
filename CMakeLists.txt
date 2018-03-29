@@ -19,6 +19,11 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 list(APPEND LINKER_LIBS ${OpenCV_LIBS})
 
+
+# Eigen3
+set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/third_party/eigen)
+INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
+
 # glog
 include("cmake/FindGlog.cmake")
 #find_package(lib_glog REQUIRED)

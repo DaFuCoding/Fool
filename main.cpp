@@ -69,6 +69,71 @@ void TEST_Filler(){
 		cout <<*(data_normal+i) << ' ';
 	cout << endl;
 }
+
+template<typename Dtype>
+void print(Block<Dtype>& block){
+	const float* result = block.cpu_data();
+	for(int i=0; i<block.count(); ++i)	{
+		cout << result[i] <<' ';
+	}
+	cout << endl;
+}
+
+void TEST_Gemm(){
+	Block<float> X(vector<int>{2, 3});
+	Block<float> W(vector<int>{3, 4});
+	Block<float> Y(vector<int>{2, 4});
+	shared_ptr<FillerFilter<float>> const_filler(GetFiller<float>("constant", 1));
+	float* X_data = X.mutable_cpu_data();
+	for(int i=0; i< 6; ++i)
+		X_data[i] = i+1;
+	print<float>(X);
+	float* W_data = W.mutable_cpu_data();
+	for(int i=0;i<12; ++i)
+		W_data[i] = 6-i;
+	print<float>(W);
+
+	const float kOne = 1.0;
+	const float kPointFive = 0.5;
+	const float kZero = 0.0;
+
+	math::Gemm<float>(
+				CblasNoTrans, CblasNoTrans, 2, 4, 3, kOne,
+				X.cpu_data(), W.cpu_data(), kZero, Y.mutable_cpu_data());
+	print<float>(Y);
+
+	math::Gemm<float>(
+				CblasNoTrans, CblasNoTrans, 2, 4, 3, kOne,
+				X.cpu_data(), W.cpu_data(), kPointFive, Y.mutable_cpu_data());
+	print<float>(Y);
+}
+
+void TEST_Gemv(){
+	Block<float> A(vector<int>{5, 10});
+	Block<float> X(vector<int>{10});
+	Block<float> Y(vector<int>{5});
+	shared_ptr<FillerFilter<float>> const_filler(GetFiller<float>("constant", 1));
+	const_filler->Fill(&A);
+	const_filler->Fill(&X);
+	const float kOne = 1.0;
+	const float kPointFive = 0.5;
+	const float kZero = 0.0;
+	math::Gemv<float>(
+				CblasNoTrans, 5, 10, kOne, A.cpu_data(), X.cpu_data(),
+				kZero, Y.mutable_cpu_data());
+	print<float>(Y);
+	math::Gemv<float>(
+				CblasNoTrans, 5, 10, kOne, A.cpu_data(), X.cpu_data(),
+				kPointFive, Y.mutable_cpu_data());
+	print<float>(Y);
+	math::Gemv<float>(
+				CblasNoTrans, 5, 10, kPointFive, A.cpu_data(), X.cpu_data(),
+				kOne, Y.mutable_cpu_data());
+	print<float>(Y);
+
+
+}
+
 /*
 void TEST_Conv(const cv::Mat& image){
 	ConvolutionFilter convFilter;
@@ -222,47 +287,21 @@ void TEST_FullyConnect(){
 	delete fc1_output_block;
 }
 
-void TEST_Memory(){
-	float* p = new float();
-	delete p;
-	p = NULL;
-	float* m = (float*)alloca(sizeof(float));
-	//cout <<	sizeof(*m) << endl;
-
-	float* nm = new(m) float();
-	cout <<	sizeof(*new(m) float()) << endl;
-	return;
-}
-void TEST_DataLayer(){
-
-}
 
 } // FOOL namespace
 
-class A{
-public:
-	A(){
-		data = (int*)malloc(10 * sizeof(int));
-	}
-	~A(){
-		if(data != nullptr)
-			free(data);
-	}
-
-	int* data;
-};
-
+#include "math_util.hpp"
+using namespace fool;
 int main(int argc, char *argv[]){
 	//fool::TEST_Block();
 	//fool::TEST_Filler();
-	fool::TEST_FullyConnect();
+	//fool::TEST_Gemm();
+	//fool::TEST_Gemv();
+	//fool::TEST_FullyConnect();
 
 	//fool::TEST_Random_Data();
 //	fool::TEST_Flatten();
-//	fool::TEST_Memory();
-	//fool::TEST_DataLayer();
 	//fool::TEST_Read_MNIST("/home/dafu/data/MNIST");
-	//fool::TEST_FullyConnect();
 
 
 	return 0;

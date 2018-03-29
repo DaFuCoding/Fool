@@ -34,7 +34,9 @@ template<typename Dtype>
 void FullyConnectFilter<Dtype>::Forward_cpu(
 		const std::vector<Block<Dtype>*>& inputs,
 		const std::vector<Block<Dtype>*>& outputs){
-
+	//Gemm<float>(false,
+	//						m_K, m_N, (Dtype)1.,
+	//						inputs[0]->cpu_data(), );
 }
 
 template<typename Dtype>
