@@ -9,9 +9,7 @@ template<typename Dtype>
 class Filter{
 
 public:
-	Filter(){
-
-	}
+	Filter(){}
 
 	explicit Filter(const vector<vector<int>>& blob_shapes);
 	virtual ~Filter(){}

@@ -1,13 +1,17 @@
 cmake_minimum_required(VERSION 2.8)
-project(FOOL)
+project(fool)
 
 # Add definitions
 add_definitions(-DCPU_ONLY)
+add_definitions(-DUSE_EIGEN_FOR_BLAS)
 
 set(LINKER_LIBS "")
 
 set(CMAKE_BUILD_TYPE "Debug")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall -Wno-unused-variable -Wsign-compare -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-unused-variable -Wsign-compare -pthread")
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CMAKE_CXX_FLAGS} -O0 -Wall -g -ggdb") 
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CMAKE_CXX_FLAGS} -O3 -Wall") 
+
 
 # opencv
 set(OpenCV_DIR /opt/opencv-2.4.9/share/OpenCV)
@@ -35,11 +39,9 @@ list(APPEND LINKER_LIBS ${GFLAGS_LIBRARIES})
 # ENDFOREACH(FILE_PATH)
 
 # first compile then link
-add_executable(${PROJECT_NAME} "main.cpp" "block.cpp" "memory_controller.cpp" "filler_filter.cpp" "fully_connect_filter.cpp")
-#	"io.cpp" "flatten_filter.cpp" "data_layer.cpp")
+add_executable(${PROJECT_NAME} "main.cpp" "block.cpp" "memory_controller.cpp" "filter.cpp" "filler_filter.cpp" "math_util.cpp" "fully_connect_filter.cpp")
+#	 "io.cpp" "flatten_filter.cpp" "data_layer.cpp")
 #add_executable(${PROJECT_NAME} ${SRC_FILES})
 target_link_libraries(${PROJECT_NAME} ${LINKER_LIBS})
 
 # ${GTEST_DIR}/src/gtest-all.cc
-
-

@@ -16,19 +16,8 @@ public:
 		m_N = blob_shapes[1][0];
 	}
 
-	explicit FullyConnectFilter(const int input_dim, const int output_dim):m_K(input_dim){
-		m_K = input_dim;
-		m_N = output_dim;
-		vector<int> input_vec = {input_dim};
-		vector<int> output_vec = {output_dim};
-		vector<vector<int>> temp_blob_shapes;
-		temp_blob_shapes.push_back(input_vec);
-		temp_blob_shapes.push_back(output_vec);
-//		FullyConnectFilter<Dtype>(temp_blob_shapes);
-	}
-
-	void FilterSetUp(const std::vector<Block<Dtype>*>& inputs,
-									 const std::vector<Block<Dtype>*>& outputs);
+	virtual void Reshape(const std::vector<Block<Dtype>*>& inputs,
+											 const std::vector<Block<Dtype>*>& outputs);
 	virtual void FilterInitialize();
 
 	virtual void Forward_cpu(const std::vector<Block<Dtype>*>& inputs,
@@ -40,6 +29,10 @@ public:
 	int m_K;
 	// output C*H*W
 	int m_N;
+	// batch size
+	int m_M;
+	// bias_term in output
+	Block<Dtype> m_output_bias;
 };
 
 }

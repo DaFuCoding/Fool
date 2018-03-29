@@ -3,9 +3,11 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <string>
+#include <memory>
+
+#include "math_util.hpp"
 #include "common.hpp"
 #include "memory_controller.hpp"
-#include <memory>
 
 namespace fool{
 
@@ -24,6 +26,7 @@ public:
 	// Shape information
 	inline int num_axes() const { return m_shape.size(); }
 	inline int count() const { return m_count; }
+	inline vector<int> shape() const {return m_shape; }
 	inline string shape_string() const {
 		ostringstream stream;
 		for (int i = 0; i < m_shape.size(); ++i) {
@@ -66,7 +69,7 @@ public:
 	const Dtype* cpu_diff();
 	Dtype* mutable_cpu_diff();
 	// Get data from mdoel
-	void FromModel(vector<int>& shape);
+	void FromModel(const vector<int>& shape);
 
 protected:
 	int m_count;

@@ -42,7 +42,7 @@ Dtype* Block<Dtype>::mutable_cpu_diff(){
 }
 
 template<typename Dtype>
-void Block<Dtype>::FromModel(vector<int>& shape){
+void Block<Dtype>::FromModel(const vector<int>& shape){
 
 }
 

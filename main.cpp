@@ -33,20 +33,15 @@ void TEST_Block(){
 
 
 }
-/*
-void TEST_Conv(const cv::Mat& image){
-	ConvolutionFilter convFilter;
-	std::vector<int> inputs_shape = {1, image.channels(), image.rows, image.cols};
-	Block<float> *inputs_block = new Block<float>();
-	inputs_block->SyncedBlock(inputs_shape);
-//	TEST_Block(image, *inputs_block);
 
-//	convFilter.ConvolutionForward(inputs, Block<Dtype>& outputs, const Block<Dtype>& weightParam,
-//								  const int outputChannel, const int kernelSizeRow, const int kernelSizeCol,
-//								  const int stride=1, const int padSize=0);
-
+vector<vector<int>> ConstrcutShape(const int input_dim, const int output_dim){
+	vector<vector<int>> blob_shapes;
+	vector<int> blob_one({input_dim, output_dim});
+	vector<int> blob_two(1, output_dim);
+	blob_shapes.push_back(blob_one);
+	blob_shapes.push_back(blob_two);
+	return blob_shapes;
 }
-*/
 
 void TEST_Filler(){
 	std::vector<int> shape = {10,1,1,1};
@@ -74,6 +69,20 @@ void TEST_Filler(){
 		cout <<*(data_normal+i) << ' ';
 	cout << endl;
 }
+/*
+void TEST_Conv(const cv::Mat& image){
+	ConvolutionFilter convFilter;
+	std::vector<int> inputs_shape = {1, image.channels(), image.rows, image.cols};
+	Block<float> *inputs_block = new Block<float>();
+	inputs_block->SyncedBlock(inputs_shape);
+//	TEST_Block(image, *inputs_block);
+
+//	convFilter.ConvolutionForward(inputs, Block<Dtype>& outputs, const Block<Dtype>& weightParam,
+//								  const int outputChannel, const int kernelSizeRow, const int kernelSizeCol,
+//								  const int stride=1, const int padSize=0);
+
+}
+*/
 /*
 void TEST_Random_Data(){
 
@@ -177,17 +186,40 @@ void TEST_Flatten(){
 }
 */
 void TEST_FullyConnect(){
-	// network model FC(784, 1000) FC(1000, 10)
-	/*
-	FullyConnectFilter<float>	fc1(784, 1000);
+	Block<float>* fc1_input_block(new Block<float>(std::vector<int>({5, 784})));
+	shared_ptr<FillerFilter<float>> fill_gen(GetFiller<float>("constant", 2));
+	fill_gen->Fill(fc1_input_block);
+	Block<float>* fc1_nobatch_input_block(new Block<float>(vector<int>({1, 784})));
+	Block<float>* fc1_output_block(new Block<float>());
+
 	std::vector<Block<float>*> fc1_inputs;
 	std::vector<Block<float>*> fc1_outputs;
-	Block<float> fc1_input_block(std::vector<int>({784}));
-	Block<float> fc1_output_block(std::vector<int>({1000}));
-	fc1_inputs.push_back(&fc1_input_block);
-	fc1_outputs.push_back(&fc1_output_block);
-	fc1.FilterSetUp(fc1_inputs, fc1_outputs);
-	*/
+	fc1_inputs.push_back(fc1_input_block);
+	fc1_outputs.push_back(fc1_output_block);
+
+	// network model FC(784, 1000) FC(1000, 10)
+	FullyConnectFilter<float>	fc1(ConstrcutShape(784, 10));
+	fc1.FilterInitialize();
+
+	bool check_param = false;
+	if(check_param){
+		// check lr_param
+		const float* fc1_bias_data = fc1.m_lr_params[1]->cpu_data();
+		const float* fc1_matrix_data = fc1.m_lr_params[0]->cpu_data();
+		for(int i=0;i<10;i++){
+			//cout << fc1_bias_data[i] << ' ';
+			for(int j=0;j<784;++j){
+				cout << fc1_matrix_data[i*784+j] << ' ';
+			}
+			cout << endl;
+		}
+	}
+	fc1.Reshape(fc1_inputs, fc1_outputs);
+	fc1.Forward_cpu(fc1_inputs, fc1_outputs);
+
+	delete fc1_input_block;
+	delete fc1_nobatch_input_block;
+	delete fc1_output_block;
 }
 
 void TEST_Memory(){
